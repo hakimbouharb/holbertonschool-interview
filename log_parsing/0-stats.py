@@ -1,29 +1,45 @@
 #!/usr/bin/python3
-""" Log parsing """
+'''A script that reads stdin line
+by line and computes metrics:'''
 import sys
 
 
-i = 0
-FileSize = 0
-STATUS = {'200': 0, '301': 0,
-          '400': 0, '401': 0,
-          '403': 0, '404': 0,
-          '405': 0, '500': 0}
-try:
-    for line in sys.stdin:
-        i += 1
-        sp = line.split(' ')
-        if len(sp) > 2:
-            FileSize += int(sp[-1])
-            if sp[-2] in STATUS:
-                STATUS[sp[-2]] += 1
-        if i % 10 == 0:
-            print("File size: {}".format(FileSize))
-            for key, value in sorted(STATUS.items()):
-                if value != 0:
-                    print("{}: {}".format(key, value))
-finally:
-    print("File size: {}".format(FileSize))
-    for key, value in sorted(STATUS.items()):
-            if value != 0:
-                print("{}: {:d}".format(key, value))
+def printS(fileSize, statusDict):
+    '''Print Static Dict'''
+    print("File size: {:d}".format(fileSize))
+    for key in sorted(statusDict.keys()):
+        if statusDict[key] != 0:
+            print(
+                "{}: {:d}".format(
+                    key, statusDict[key]
+                )
+            )
+
+
+if __name__ == "__main__":
+    i = 0
+    statusDict = {
+        '200': 0,
+        '301': 0,
+        '400': 0,
+        '401': 0,
+        '403': 0,
+        '404': 0,
+        '405': 0,
+        '500': 0
+    }
+    fileSize = 0
+    try:
+        for line in sys.stdin:
+            keywords = line.split()
+            if len(keywords) >= 2:
+                if keywords[-2] in statusDict.keys():
+                    statusDict[keywords[-2]] += 1
+                fileSize += int(keywords[-1])
+                i += 1
+                if not i % 10:
+                    printS(fileSize, statusDict)
+        printS(fileSize, statusDict)
+    except KeyboardInterrupt:
+        printS(fileSize, statusDict)
+        raise
