@@ -18,7 +18,7 @@ def minOperations(n):
         return 0
     op_calc = 2
     opp = 0
-    while(n != 1):
+    while (n != 1):
         if (isPremium(op_calc)):
             if (n % op_calc == 0):
                 n = n / op_calc
