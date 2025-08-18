@@ -1,38 +1,54 @@
 #!/usr/bin/node
 
-const request = require('request');
+const https = require('https');
 
 const movieId = process.argv[2];
-if (!movieId) {
-  console.error('Usage: ./0-starwars_characters.js <movie_id>');
-  process.exit(1);
-}
+const apiUrl = `https://swapi-api.hbtn.io/api/films/${movieId}/`;
 
-const apiUrl = `https://swapi-api.hbtn.io/api/films/${movieId}`;
+https.get(apiUrl, (response) => {
+  let data = '';
 
-request(apiUrl, (err, response, body) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
+  response.on('data', (chunk) => {
+    data += chunk;
+  });
 
-  const filmData = JSON.parse(body);
-  const characters = filmData.characters;
+  response.on('end', () => {
+    if (response.statusCode !== 200) {
+      console.error(`Error: Status code ${response.statusCode}`);
+      return;
+    }
 
-  const printCharacters = (index) => {
-    if (index >= characters.length) return;
+    const filmData = JSON.parse(data);
+    const charactersUrls = filmData.characters;
 
-    request(characters[index], (err, res, body) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
+    const fetchCharacterNames = (urls, index = 0) => {
+      if (index >= urls.length) return;
 
-      const characterData = JSON.parse(body);
-      console.log(characterData.name);
-      printCharacters(index + 1);
-    });
-  };
+      https.get(urls[index], (charResponse) => {
+        let charData = '';
 
-  printCharacters(0);
+        charResponse.on('data', (chunk) => {
+          charData += chunk;
+        });
+
+        charResponse.on('end', () => {
+          if (charResponse.statusCode !== 200) {
+            console.error(`Error: Status code ${charResponse.statusCode}`);
+            return;
+          }
+
+          const characterData = JSON.parse(charData);
+          console.log(characterData.name);
+
+          fetchCharacterNames(urls, index + 1);
+        });
+      }).on('error', (charError) => {
+        console.error(charError);
+      });
+    };
+
+    fetchCharacterNames(charactersUrls);
+  });
+}).on('error', (error) => {
+  console.error(error);
 });
