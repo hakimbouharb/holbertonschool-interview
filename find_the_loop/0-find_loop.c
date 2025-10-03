@@ -1,23 +1,32 @@
-#!/usr/bin/python3
-"""
-Rotate a 2D matrix 90 degrees clockwise in place.
-"""
+#include "lists.h"
 
+/**
+ * find_listint_loop - finds the starting node of a loop in a lined list
+ * @head: Pointer to the head off the linked list
+ *
+ * Return: address of the node where the loop starts, or NULL if no loop
+ */
+listint_t *find_listint_loop(listint_t *head)
+{
+	listint_t *slow = head, *fast = head;
 
-def rotate_2d_matrix(matrix):
-    """
-    Rotates an n x n 2D matrix 90 degrees clockwise in place.
+	if (!head)
+		return (NULL);
 
-    Args:
-        matrix (list of list of int): The matrix to rotate.
-    """
-    n = len(matrix)
-
-    # Transpose the matrix (flip over the diagonal)
-    for i in range(n):
-        for j in range(i + 1, n):
-            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
-
-    # Reverse each row
-    for row in matrix:
-        row.reverse()
+	while (fast && fast->next)
+	{
+		slow = slow->next;
+		fast = fast->next->next;
+		if (slow == fast)
+		{
+			slow = head;
+			while (slow != fast)
+			{
+				slow = slow->next;
+				fast = fast->next;
+			}
+			return (slow);
+		}
+	}
+	return (NULL);
+}
